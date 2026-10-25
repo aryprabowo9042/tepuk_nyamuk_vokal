@@ -126,6 +126,31 @@
             question: "Usaha untuk memperindah suara dengan memfungsikan rongga-rongga udara disebut...",
             correct: "Resonansi",
             wrong: ["Intonasi", "Artikulasi", "Phrasering"]
+        },
+        {
+            question: "Sikap badan yang benar saat bernyanyi sebaiknya...",
+            correct: "Tegak dan rileks",
+            wrong: ["Membungkuk", "Kaku", "Bersandar"]
+        },
+        {
+            question: "Wilayah nada suara wanita dewasa yang tinggi disebut...",
+            correct: "Sopran",
+            wrong: ["Alto", "Tenor", "Bass"]
+        },
+        {
+            question: "Wilayah nada suara pria dewasa yang rendah disebut...",
+            correct: "Bass",
+            wrong: ["Tenor", "Bariton", "Sopran"]
+        },
+        {
+            question: "Latihan vokal dasar untuk melemaskan pita suara biasa disebut...",
+            correct: "Vocalizing",
+            wrong: ["Phrasering", "Pernapasan", "Resonansi"]
+        },
+        {
+            question: "Warna suara yang khas dan berbeda pada setiap orang disebut...",
+            correct: "Timbre",
+            wrong: ["Pitch", "Nada", "Dinamika"]
         }
     ];
 
@@ -152,6 +177,7 @@
     let currentQuestionIndex = 0;
     let score = 0;
     let mosquitos = [];
+    let selectedQuestions = []; // Menyimpan 5 soal yang terpilih secara acak
     let pointerX = -100; // Posisi telunjuk (awalnya disembunyikan)
     let pointerY = -100;
     let feedbackText = ""; // Untuk pesan "Benar!" / "Coba Lagi!"
@@ -307,12 +333,12 @@
     }
 
     function loadQuestion() {
-        if (currentQuestionIndex >= questionsData.length) {
+        if (currentQuestionIndex >= selectedQuestions.length) {
             endGame();
             return;
         }
 
-        const qData = questionsData[currentQuestionIndex];
+        const qData = selectedQuestions[currentQuestionIndex];
         mosquitos = [];
         
         // Kumpulkan semua opsi dan acak
@@ -401,11 +427,11 @@
         ctx.font = 'bold 24px Inter';
         ctx.textAlign = 'left';
         ctx.fillText(`Skor: ${score}`, 30, 40);
-        ctx.fillText(`Soal: ${currentQuestionIndex + 1} / ${questionsData.length}`, 30, 70);
+        ctx.fillText(`Soal: ${currentQuestionIndex + 1} / ${selectedQuestions.length}`, 30, 70);
 
-        if (currentQuestionIndex < questionsData.length) {
+        if (currentQuestionIndex < selectedQuestions.length) {
             // Kotak pertanyaan
-            const questionText = questionsData[currentQuestionIndex].question;
+            const questionText = selectedQuestions[currentQuestionIndex].question;
             ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
             ctx.roundRect(canvas.width/2 - 400, 20, 800, 80, 20);
             ctx.fill();
@@ -469,6 +495,10 @@
         mainMenu.classList.add('hidden');
         loadingScreen.classList.remove('hidden');
 
+        // Acak dari 10 soal, pilih 5 teratas
+        const shuffled = [...questionsData].sort(() => 0.5 - Math.random());
+        selectedQuestions = shuffled.slice(0, 5);
+
         // Reset teks loading (jika main ulang setelah error kamera)
         loadingScreen.querySelector('h2').innerText = "Menyiapkan Kamera...";
         loadingScreen.querySelector('p').innerText = "Pastikan untuk memberikan izin akses kamera (webcam).";
@@ -494,12 +524,9 @@
     }
 
     restartBtn.addEventListener('click', () => {
+        // Setelah klik Main Lagi, kembali ke Main Menu bukan langsung main
         gameOverScreen.classList.add('hidden');
-        isPlaying = true;
-        score = 0;
-        currentQuestionIndex = 0;
-        loadQuestion();
-        gameLoop();
+        mainMenu.classList.remove('hidden');
     });
 
     // Helper untuk membuat rounded rectangle di Canvas API (polyfill)
